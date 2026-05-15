@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 const FEATURES = [
   {
@@ -54,6 +55,45 @@ const FEATURES = [
     ),
     title: 'Pagos seguros',
     desc: 'Tecnología Stripe. PCI-DSS compliant. Tus clientes pagan con total confianza desde cualquier dispositivo.',
+  },
+]
+
+const EXPERIENCE_TYPES = [
+  {
+    title: 'Surf & Kitesurf',
+    desc: 'Escuelas de surf, clases de kite, alquiler de tablas',
+    img: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=600&q=80',
+    color: 'from-blue-600 to-cyan-400',
+  },
+  {
+    title: 'Buceo & Snorkel',
+    desc: 'Bautismos de buceo, inmersiones guiadas, snorkeling',
+    img: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&q=80',
+    color: 'from-teal-600 to-emerald-400',
+  },
+  {
+    title: 'Excursiones & Quad',
+    desc: 'Rutas en quad, jeep safari, trekking por volcanes',
+    img: 'https://images.unsplash.com/photo-1533130061792-64b345e4a833?w=600&q=80',
+    color: 'from-orange-600 to-amber-400',
+  },
+  {
+    title: 'Whale Watching',
+    desc: 'Avistamiento de cetáceos, paseos en barco, pesca',
+    img: 'https://images.unsplash.com/photo-1568430462989-44163eb1752f?w=600&q=80',
+    color: 'from-sky-600 to-blue-400',
+  },
+  {
+    title: 'Parapente & Aire',
+    desc: 'Vuelos en parapente, ala delta, experiencias aéreas',
+    img: 'https://images.unsplash.com/photo-1622472991839-e6eee2e1d1ac?w=600&q=80',
+    color: 'from-violet-600 to-purple-400',
+  },
+  {
+    title: 'Rutas & Cultura',
+    desc: 'Tours guiados, visitas culturales, gastronomía local',
+    img: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&q=80',
+    color: 'from-rose-600 to-pink-400',
   },
 ]
 
@@ -134,6 +174,13 @@ export default function HomePage() {
             </Link>
           </div>
           <p className="text-xs text-gray-400 mt-4">Sin tarjeta de crédito · Configuración en 10 minutos</p>
+
+          {/* Social proof logos */}
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-6 opacity-40">
+            {['Surf School', 'Diving Center', 'Quad Tours', 'Whale Watching', 'Parapente'].map(t => (
+              <span key={t} className="text-xs font-bold tracking-widest uppercase text-gray-500">{t}</span>
+            ))}
+          </div>
         </div>
 
         {/* Mockup booking card */}
@@ -181,6 +228,36 @@ export default function HomePage() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── EXPERIENCIAS ─────────────────────────────────── */}
+      <section className="py-24 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <p className="text-sky-500 text-xs font-bold tracking-widest uppercase mb-3">Sectores</p>
+            <h2 className="text-4xl font-black text-gray-900">Para todo tipo de experiencias</h2>
+            <p className="text-gray-500 mt-3 max-w-xl mx-auto">Si se puede reservar, Slotly lo gestiona. Surf, buceo, excursiones, avistamiento de cetáceos y mucho más.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {EXPERIENCE_TYPES.map(exp => (
+              <div key={exp.title} className="group relative rounded-3xl overflow-hidden aspect-[4/3] cursor-pointer">
+                <Image
+                  src={exp.img}
+                  alt={exp.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                />
+                <div className={`absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent`} />
+                <div className="absolute bottom-0 left-0 right-0 p-5">
+                  <h3 className="text-white font-black text-lg leading-tight">{exp.title}</h3>
+                  <p className="text-white/70 text-sm mt-1">{exp.desc}</p>
+                </div>
+                <div className={`absolute top-4 right-4 w-8 h-8 rounded-full bg-gradient-to-br ${exp.color} opacity-0 group-hover:opacity-100 transition-opacity`} />
+              </div>
+            ))}
           </div>
         </div>
       </section>
