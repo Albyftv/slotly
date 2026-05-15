@@ -1,0 +1,49 @@
+export const dynamic = 'force-dynamic'
+
+import { NextRequest, NextResponse } from 'next/server'
+import { getStripe } from '@/lib/stripe'
+import { createServiceClient } from '@/lib/supabase/server'
+import Stripe from 'stripe'
+
+function clean(v: string | undefined) {
+  let s = (v ?? '').trim()
+  while (s.charCodeAt(0) === 65279) s = s.slice(1)
+  return s.trim()
+}
+
+export async function POST(req: NextRequest) {
+  const body = await req.text()
+  const sig = req.headers.get('stripe-signature')!
+  const whSecret = clean(process.env.STRIPE_WEBHOOK_SECRET)
+
+  let event: Stripe.Event
+  try {
+    event = getStripe().webhooks.constructEvent(body, sig, whSecret)
+  } catch {
+    return NextResponse.json({ error: 'Webhook signature inválida' }, { status: 400 })
+  }
+
+  const supabase = createServiceClient()
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object as Stripe.Checkout.Session
+    const { booking_id } = session.metadata ?? {}
+
+    if (booking_id) {
+      await supabase.from('bookings').update({
+        status: 'confirmed',
+        stripe_payment_intent_id: session.payment_intent as string,
+      }).eq('id', booking_id)
+    }
+  }
+
+  if (event.type === 'checkout.session.expired') {
+    const session = event.data.object as Stripe.Checkout.Session
+    const { booking_id } = session.metadata ?? {}
+    if (booking_id) {
+      await supabase.from('bookings').update({ status: 'cancelled' }).eq('id', booking_id)
+    }
+  }
+
+  return NextResponse.json({ received: true })
+}
