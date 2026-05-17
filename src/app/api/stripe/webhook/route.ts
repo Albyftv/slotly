@@ -45,5 +45,13 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  if (event.type === 'account.updated') {
+    const account = event.data.object as Stripe.Account
+    await supabase
+      .from('operators')
+      .update({ stripe_account_enabled: account.charges_enabled })
+      .eq('stripe_account_id', account.id)
+  }
+
   return NextResponse.json({ received: true })
 }
