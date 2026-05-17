@@ -40,33 +40,28 @@ function RegistroForm() {
     try {
       const supabase = createClient()
 
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      // Crear usuario + operador vía API (service_role bypasa RLS)
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: account.email,
+          password: account.password,
+          name: business.name,
+          city: business.city || null,
+          phone: business.phone || null,
+        }),
+      })
+
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Error al crear la cuenta')
+
+      // Login automático tras registro
+      const { error: loginError } = await supabase.auth.signInWithPassword({
         email: account.email,
         password: account.password,
       })
-
-      if (authError) throw authError
-      if (!authData.user) throw new Error('No se pudo crear la cuenta')
-
-      const slug = business.name
-        .toLowerCase()
-        .normalize('NFD').replace(/[̀-ͯ]/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '')
-
-      const { error: opError } = await supabase.from('operators').insert({
-        user_id: authData.user.id,
-        name: business.name,
-        slug,
-        email: account.email,
-        phone: business.phone || null,
-        whatsapp: business.whatsapp || null,
-        city: business.city || null,
-        primary_color: '#0ea5e9',
-        subscription_status: 'trialing',
-      })
-
-      if (opError) throw opError
+      if (loginError) throw loginError
 
       router.push('/dashboard')
     } catch (err: unknown) {
