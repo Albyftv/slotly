@@ -1,14 +1,15 @@
 import { notFound } from 'next/navigation'
 import { createServiceClient } from '@/lib/supabase/server'
 import Image from 'next/image'
+import Link from 'next/link'
 import BookingWidget from '@/components/BookingWidget'
 import type { Experience, Operator, Availability } from '@/lib/types'
 import { DIFFICULTY_LABELS } from '@/lib/types'
-
-export const revalidate = 60
+import { parseLang, getT, SUPPORTED_LANGS, LANG_FLAGS, LANG_LABELS, type Lang } from '@/lib/i18n'
 
 interface Props {
   params: Promise<{ operatorSlug: string; experienceSlug: string }>
+  searchParams: Promise<{ lang?: string }>
 }
 
 export async function generateMetadata({ params }: Props) {
@@ -27,8 +28,9 @@ export async function generateMetadata({ params }: Props) {
   }
 }
 
-export default async function ExperienciaPublicaPage({ params }: Props) {
+export default async function ExperienciaPublicaPage({ params, searchParams }: Props) {
   const { operatorSlug, experienceSlug } = await params
+  const { lang: rawLang } = await searchParams
   const supabase = createServiceClient()
 
   const { data: operator } = await supabase
@@ -58,11 +60,26 @@ export default async function ExperienciaPublicaPage({ params }: Props) {
   const exp = experience as Experience & { availability: Availability[] }
   const op = operator as Operator
 
+  // Language: use URL param if it's a supported lang for this experience, else 'es'
+  const expLangs = (exp.languages ?? []) as string[]
+  const candidateLang = parseLang(rawLang)
+  const lang: Lang = (expLangs.length === 0 || expLangs.includes(candidateLang))
+    ? candidateLang
+    : 'es'
+  const t = getT(lang)
+
   const durationHours = Math.floor(exp.duration_min / 60)
   const durationMins = exp.duration_min % 60
   const durationLabel = durationHours > 0
     ? `${durationHours}h${durationMins > 0 ? ` ${durationMins}min` : ''}`
     : `${durationMins}min`
+
+  // Only show the languages the experience supports
+  const availableLangs = SUPPORTED_LANGS.filter(l =>
+    expLangs.length === 0 || expLangs.includes(l)
+  )
+
+  const baseUrl = `/${operatorSlug}/${experienceSlug}`
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
@@ -76,21 +93,43 @@ export default async function ExperienciaPublicaPage({ params }: Props) {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-        {/* Back link */}
+        {/* Back */}
         <a href="javascript:history.back()"
           className="absolute top-5 left-5 flex items-center gap-2 text-white/80 hover:text-white text-sm font-semibold bg-black/20 backdrop-blur-sm px-3 py-2 rounded-full transition-colors">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
-          Volver
+          {t.back}
         </a>
 
-        {/* Operator badge */}
-        <div className="absolute top-5 right-5 flex items-center gap-2 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1.5">
-          <div className="w-6 h-6 rounded-full bg-sky-500 flex items-center justify-center text-white text-xs font-black">
-            {op.name.charAt(0)}
+        {/* Language switcher + operator badge */}
+        <div className="absolute top-5 right-5 flex items-center gap-2">
+          {/* Language switcher */}
+          {availableLangs.length > 1 && (
+            <div className="flex items-center gap-1 bg-black/30 backdrop-blur-sm rounded-full px-2 py-1.5">
+              {availableLangs.map(l => (
+                <Link
+                  key={l}
+                  href={`${baseUrl}?lang=${l}`}
+                  className={`text-xs font-bold px-2 py-0.5 rounded-full transition-colors ${
+                    lang === l
+                      ? 'bg-white text-gray-900'
+                      : 'text-white/70 hover:text-white'
+                  }`}
+                >
+                  {LANG_FLAGS[l]} {LANG_LABELS[l]}
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {/* Operator badge */}
+          <div className="flex items-center gap-2 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1.5">
+            <div className="w-6 h-6 rounded-full bg-sky-500 flex items-center justify-center text-white text-xs font-black">
+              {op.name.charAt(0)}
+            </div>
+            <span className="text-white text-xs font-semibold">{op.name}</span>
           </div>
-          <span className="text-white text-xs font-semibold">{op.name}</span>
         </div>
 
         {/* Title overlay */}
@@ -101,18 +140,13 @@ export default async function ExperienciaPublicaPage({ params }: Props) {
                 ⏱ {durationLabel}
               </span>
               <span className="bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full">
-                👥 Máx. {exp.max_capacity} personas
+                👥 {t.max} {exp.max_capacity}
               </span>
               {exp.difficulty !== 'all' && (
                 <span className="bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full">
                   {DIFFICULTY_LABELS[exp.difficulty]}
                 </span>
               )}
-              {(exp.languages ?? []).map(l => (
-                <span key={l} className="bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full uppercase">
-                  {l}
-                </span>
-              ))}
             </div>
             <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight">{exp.name}</h1>
             {exp.location && (
@@ -134,20 +168,18 @@ export default async function ExperienciaPublicaPage({ params }: Props) {
           {/* Columna izquierda: info */}
           <div className="space-y-8 order-2 lg:order-1">
 
-            {/* Descripción */}
             {exp.description && (
               <div>
-                <h2 className="text-lg font-black text-gray-900 mb-3">Sobre esta experiencia</h2>
+                <h2 className="text-lg font-black text-gray-900 mb-3">{t.about}</h2>
                 <p className="text-gray-600 leading-relaxed">{exp.description}</p>
               </div>
             )}
 
-            {/* Incluido / No incluido */}
             {((exp.included ?? []).length > 0 || (exp.not_included ?? []).length > 0) && (
               <div className="grid sm:grid-cols-2 gap-6">
                 {(exp.included ?? []).length > 0 && (
                   <div>
-                    <h3 className="text-sm font-black text-gray-900 mb-3">✅ Incluido</h3>
+                    <h3 className="text-sm font-black text-gray-900 mb-3">{t.included}</h3>
                     <ul className="space-y-2">
                       {(exp.included ?? []).map((item, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
@@ -162,7 +194,7 @@ export default async function ExperienciaPublicaPage({ params }: Props) {
                 )}
                 {(exp.not_included ?? []).length > 0 && (
                   <div>
-                    <h3 className="text-sm font-black text-gray-900 mb-3">❌ No incluido</h3>
+                    <h3 className="text-sm font-black text-gray-900 mb-3">{t.notIncluded}</h3>
                     <ul className="space-y-2">
                       {(exp.not_included ?? []).map((item, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
@@ -178,22 +210,21 @@ export default async function ExperienciaPublicaPage({ params }: Props) {
               </div>
             )}
 
-            {/* Punto de encuentro */}
             {exp.meeting_point && (
               <div className="bg-sky-50 rounded-2xl p-5">
                 <h3 className="text-sm font-black text-gray-900 mb-1 flex items-center gap-2">
                   <svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" strokeWidth="2" className="w-4 h-4">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                   </svg>
-                  Punto de encuentro
+                  {t.meetingPoint}
                 </h3>
                 <p className="text-gray-600 text-sm">{exp.meeting_point}</p>
               </div>
             )}
 
-            {/* Operador info */}
+            {/* Operador */}
             <div className="border border-gray-100 rounded-2xl p-5">
-              <h3 className="text-sm font-black text-gray-900 mb-4">Organizado por</h3>
+              <h3 className="text-sm font-black text-gray-900 mb-4">{t.organizedBy}</h3>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-sky-500 text-white flex items-center justify-center font-black text-lg flex-shrink-0">
                   {op.name.charAt(0)}
@@ -221,7 +252,7 @@ export default async function ExperienciaPublicaPage({ params }: Props) {
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
                         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.37a16 16 0 0 0 6 6l1.27-.93a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
                       </svg>
-                      Llamar
+                      {t.call}
                     </a>
                   )}
                 </div>
@@ -229,19 +260,19 @@ export default async function ExperienciaPublicaPage({ params }: Props) {
             </div>
           </div>
 
-          {/* Columna derecha: widget de reserva */}
+          {/* Columna derecha: widget */}
           <div className="order-1 lg:order-2">
             <div className="lg:sticky lg:top-6">
               <BookingWidget
                 experience={exp}
                 blockedDates={(blockedDates ?? []).map(b => b.blocked_date)}
+                lang={lang}
               />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Footer */}
       <footer className="mt-16 py-6 border-t border-gray-100 text-center">
         <p className="text-xs text-gray-300">
           Reservas gestionadas con <a href="/" className="hover:text-gray-500">slotly.es</a>

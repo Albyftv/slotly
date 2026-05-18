@@ -3,17 +3,24 @@
 import { useState, useMemo } from 'react'
 import { addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval,
          getDay, format, isBefore, isToday, isSameDay, startOfDay } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { es, enUS, de, fr } from 'date-fns/locale'
 import type { Experience, Availability } from '@/lib/types'
+import { type Lang, getT } from '@/lib/i18n'
+
+const DATE_FNS_LOCALE = { es, en: enUS, de, fr }
 
 interface Props {
   experience: Experience & { availability: Availability[] }
   blockedDates: string[]
+  lang?: Lang
 }
 
 type Step = 'calendar' | 'checkout' | 'success'
 
-export default function BookingWidget({ experience: exp, blockedDates }: Props) {
+export default function BookingWidget({ experience: exp, blockedDates, lang = 'es' }: Props) {
+  const t = getT(lang)
+  const locale = DATE_FNS_LOCALE[lang] ?? es
+
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
@@ -27,25 +34,23 @@ export default function BookingWidget({ experience: exp, blockedDates }: Props) 
   const availableDaysOfWeek = new Set((exp.availability ?? []).filter(a => a.active).map(a => a.day_of_week))
   const blockedSet = new Set(blockedDates)
 
-  // Days in the current month grid
   const days = useMemo(() => {
     const start = startOfMonth(currentMonth)
     const end = endOfMonth(currentMonth)
     const allDays = eachDayOfInterval({ start, end })
-    const firstDow = getDay(start) // 0=Sun
-    const offset = firstDow === 0 ? 6 : firstDow - 1 // Monday-first
+    const firstDow = getDay(start)
+    const offset = firstDow === 0 ? 6 : firstDow - 1
     return { allDays, offset }
   }, [currentMonth])
 
   function isDateAvailable(date: Date) {
     if (isBefore(date, today)) return false
-    const dow = getDay(date) // 0=Sun
+    const dow = getDay(date)
     if (!availableDaysOfWeek.has(dow)) return false
     if (blockedSet.has(format(date, 'yyyy-MM-dd'))) return false
     return true
   }
 
-  // Time slots for selected date
   const timeSlotsForDay = useMemo(() => {
     if (!selectedDate) return []
     const dow = getDay(selectedDate)
@@ -77,10 +82,11 @@ export default function BookingWidget({ experience: exp, blockedDates }: Props) 
           customer_email: form.email,
           customer_phone: form.phone || null,
           special_requests: form.notes || null,
+          language: lang,
         }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? 'Error al procesar la reserva')
+      if (!res.ok) throw new Error(data.error ?? 'Error')
       if (data.url) {
         window.location.href = data.url
       } else {
@@ -101,8 +107,8 @@ export default function BookingWidget({ experience: exp, blockedDates }: Props) 
             <polyline points="20 6 9 17 4 12"/>
           </svg>
         </div>
-        <h3 className="text-xl font-black text-gray-900 mb-2">¡Reserva confirmada!</h3>
-        <p className="text-gray-500 text-sm">Te hemos enviado un email de confirmación con todos los detalles.</p>
+        <h3 className="text-xl font-black text-gray-900 mb-2">{t.confirmed}</h3>
+        <p className="text-gray-500 text-sm">{t.confirmationSent}</p>
       </div>
     )
   }
@@ -111,13 +117,13 @@ export default function BookingWidget({ experience: exp, blockedDates }: Props) 
     <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden">
       {/* Price header */}
       <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
-        <div>
-          <p className="text-3xl font-black text-gray-900">{exp.price}€<span className="text-base font-normal text-gray-400">/persona</span></p>
-        </div>
+        <p className="text-3xl font-black text-gray-900">
+          {exp.price}€<span className="text-base font-normal text-gray-400">/persona</span>
+        </p>
         {step === 'checkout' && (
           <button onClick={() => { setStep('calendar'); setError('') }}
             className="text-sm text-sky-500 font-semibold hover:underline">
-            ← Cambiar fecha
+            {t.changeDate}
           </button>
         )}
       </div>
@@ -135,7 +141,7 @@ export default function BookingWidget({ experience: exp, blockedDates }: Props) 
                 </svg>
               </button>
               <p className="text-sm font-bold text-gray-900 capitalize">
-                {format(currentMonth, 'MMMM yyyy', { locale: es })}
+                {format(currentMonth, 'MMMM yyyy', { locale })}
               </p>
               <button onClick={() => setCurrentMonth(m => addMonths(m, 1))}
                 className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
@@ -145,25 +151,21 @@ export default function BookingWidget({ experience: exp, blockedDates }: Props) 
               </button>
             </div>
 
-            {/* Day headers */}
             <div className="grid grid-cols-7 mb-1">
-              {['Lu','Ma','Mi','Ju','Vi','Sá','Do'].map(d => (
+              {t.days.map(d => (
                 <div key={d} className="text-center text-xs font-bold text-gray-400 py-1">{d}</div>
               ))}
             </div>
 
-            {/* Day grid */}
             <div className="grid grid-cols-7 gap-0.5">
-              {Array.from({ length: days.offset }).map((_, i) => <div key={`empty-${i}`} />)}
+              {Array.from({ length: days.offset }).map((_, i) => <div key={`e-${i}`} />)}
               {days.allDays.map(date => {
                 const available = isDateAvailable(date)
                 const selected = selectedDate && isSameDay(date, selectedDate)
                 const past = isBefore(date, today)
                 const todayDate = isToday(date)
                 return (
-                  <button
-                    key={date.toISOString()}
-                    type="button"
+                  <button key={date.toISOString()} type="button"
                     disabled={!available}
                     onClick={() => { setSelectedDate(date); setSelectedTime(null) }}
                     className={`
@@ -185,7 +187,7 @@ export default function BookingWidget({ experience: exp, blockedDates }: Props) 
           {selectedDate && (
             <div>
               <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                Horarios · {format(selectedDate, "EEEE d 'de' MMMM", { locale: es })}
+                {t.timesFor} · {format(selectedDate, "EEEE d 'de' MMMM", { locale })}
               </p>
               <div className="grid grid-cols-3 gap-2">
                 {timeSlotsForDay.map(time => (
@@ -206,7 +208,7 @@ export default function BookingWidget({ experience: exp, blockedDates }: Props) 
           {/* Participants */}
           {selectedTime && (
             <div>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Participantes</p>
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{t.participants}</p>
               <div className="flex items-center justify-between bg-gray-50 rounded-xl p-3">
                 <button type="button"
                   onClick={() => setParticipants(p => Math.max(exp.min_participants, p - 1))}
@@ -216,7 +218,7 @@ export default function BookingWidget({ experience: exp, blockedDates }: Props) 
                 </button>
                 <div className="text-center">
                   <p className="text-xl font-black text-gray-900">{participants}</p>
-                  <p className="text-xs text-gray-400">persona{participants !== 1 ? 's' : ''}</p>
+                  <p className="text-xs text-gray-400">{participants === 1 ? t.person : t.persons}</p>
                 </div>
                 <button type="button"
                   onClick={() => setParticipants(p => Math.min(exp.max_capacity, p + 1))}
@@ -236,14 +238,15 @@ export default function BookingWidget({ experience: exp, blockedDates }: Props) 
                 <span className="font-black text-gray-900 text-lg">{total.toFixed(2)}€</span>
               </div>
             )}
-            <button
-              type="button"
+            <button type="button"
               disabled={!selectedDate || !selectedTime}
               onClick={() => setStep('checkout')}
               className="w-full bg-sky-500 text-white font-black py-4 rounded-2xl text-base hover:bg-sky-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-sky-200">
-              {selectedDate && selectedTime ? `Reservar · ${total.toFixed(2)}€` : 'Elige fecha y horario'}
+              {selectedDate && selectedTime
+                ? `${t.book} · ${total.toFixed(2)}€`
+                : t.chooseDateTime}
             </button>
-            <p className="text-center text-xs text-gray-400 mt-2">Sin cargos hasta confirmar el pago</p>
+            <p className="text-center text-xs text-gray-400 mt-2">{t.noCharge}</p>
           </div>
         </div>
       )}
@@ -253,39 +256,39 @@ export default function BookingWidget({ experience: exp, blockedDates }: Props) 
           {/* Summary */}
           <div className="bg-sky-50 rounded-2xl p-4 space-y-1.5">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Fecha</span>
+              <span className="text-gray-500">{t.summaryDate}</span>
               <span className="font-semibold text-gray-800 capitalize">
-                {selectedDate && format(selectedDate, "EEEE d MMM", { locale: es })}
+                {selectedDate && format(selectedDate, 'EEEE d MMM', { locale })}
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Hora</span>
+              <span className="text-gray-500">{t.summaryTime}</span>
               <span className="font-semibold text-gray-800">{selectedTime}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Personas</span>
+              <span className="text-gray-500">{t.summaryPeople}</span>
               <span className="font-semibold text-gray-800">{participants}</span>
             </div>
             <div className="border-t border-sky-200 pt-1.5 flex justify-between">
-              <span className="font-black text-gray-900">Total</span>
+              <span className="font-black text-gray-900">{t.summaryTotal}</span>
               <span className="font-black text-gray-900">{total.toFixed(2)}€</span>
             </div>
           </div>
 
           {/* Contact */}
           <div>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Tus datos</p>
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">{t.yourDetails}</p>
             <div className="space-y-3">
-              <input required type="text" placeholder="Nombre completo *"
+              <input required type="text" placeholder={t.fullName}
                 value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
               <input required type="email" placeholder="Email *"
                 value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
-              <input type="tel" placeholder="Teléfono (opcional)"
+              <input type="tel" placeholder={t.phone}
                 value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
-              <textarea rows={2} placeholder="Notas o peticiones especiales (opcional)"
+              <textarea rows={2} placeholder={t.notes}
                 value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none" />
             </div>
@@ -295,13 +298,13 @@ export default function BookingWidget({ experience: exp, blockedDates }: Props) 
 
           <button type="submit" disabled={loading}
             className="w-full bg-sky-500 text-white font-black py-4 rounded-2xl text-base hover:bg-sky-400 transition-colors disabled:opacity-50 shadow-lg shadow-sky-200">
-            {loading ? 'Procesando...' : `Pagar ${total.toFixed(2)}€ →`}
+            {loading ? t.processing : `${t.pay} ${total.toFixed(2)}€ →`}
           </button>
           <p className="text-center text-xs text-gray-400 flex items-center justify-center gap-1">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
               <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
             </svg>
-            Pago seguro con Stripe · SSL
+            {t.securePay}
           </p>
         </form>
       )}
