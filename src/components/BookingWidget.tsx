@@ -137,7 +137,7 @@ export default function BookingWidget({ experience: exp, blockedDates, lang = 'e
       {/* Cover image header */}
       {exp.cover_url ? (
         <div className="relative h-36 overflow-hidden">
-          <Image src={exp.cover_url} alt={exp.name} fill className="object-cover" sizes="420px" />
+          <Image src={exp.cover_url} alt={exp.name} fill className="object-cover" sizes="420px" unoptimized />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-black/10" />
           <div className="absolute bottom-0 left-0 right-0 px-5 py-4 flex items-end justify-between">
             <p className="text-2xl font-black text-white drop-shadow">
