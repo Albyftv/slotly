@@ -271,6 +271,32 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── DESTINOS ─────────────────────────────────────── */}
+      <section className="py-24 px-6 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <p className="text-sky-500 text-xs font-bold tracking-widest uppercase mb-3">Destinos</p>
+            <h2 className="text-4xl font-black text-gray-900">Explora por isla</h2>
+            <p className="text-gray-500 mt-3 max-w-xl mx-auto">Encuentra experiencias en cada rincón de Canarias.</p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            {[
+              { slug: 'fuerteventura', name: 'Fuerteventura', emoji: '🏄' },
+              { slug: 'tenerife', name: 'Tenerife', emoji: '🌋' },
+              { slug: 'gran-canaria', name: 'Gran Canaria', emoji: '🌊' },
+              { slug: 'lanzarote', name: 'Lanzarote', emoji: '🌋' },
+              { slug: 'la-palma', name: 'La Palma', emoji: '⭐' },
+            ].map(d => (
+              <Link key={d.slug} href={`/destinos/${d.slug}`}
+                className="bg-white border border-gray-100 rounded-2xl p-6 text-center hover:shadow-md hover:border-sky-200 hover:-translate-y-0.5 transition-all group">
+                <div className="text-4xl mb-3">{d.emoji}</div>
+                <p className="font-black text-gray-900 text-sm group-hover:text-sky-600 transition-colors">{d.name}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── CÓMO FUNCIONA ────────────────────────────────── */}
       <section id="como-funciona" className="py-24 px-6 bg-gray-950 text-white">
         <div className="max-w-5xl mx-auto">
