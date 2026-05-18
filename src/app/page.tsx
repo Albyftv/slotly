@@ -41,6 +41,15 @@ const FEATURES = [
   {
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+      </svg>
+    ),
+    title: 'Incrustar en tu web',
+    desc: '¿Ya tienes web propia? Añade el widget de reservas con una línea de código. Compatible con WordPress, Wix, Squarespace y cualquier HTML.',
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
         <path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/>
       </svg>
     ),
