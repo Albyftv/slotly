@@ -95,7 +95,7 @@ const EXPERIENCE_TYPES = [
   {
     title: 'Parapente & Aire',
     desc: 'Vuelos en parapente, ala delta, experiencias aéreas',
-    img: 'https://images.unsplash.com/photo-1622472991839-e6eee2e1d1ac?w=600&q=80',
+    img: 'https://images.unsplash.com/photo-1601024445121-e5b82f020549?w=600&q=80',
     color: 'from-violet-600 to-purple-400',
   },
   {

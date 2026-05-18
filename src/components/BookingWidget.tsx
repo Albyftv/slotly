@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import Image from 'next/image'
 import { addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval,
          getDay, format, isBefore, isToday, isSameDay, startOfDay } from 'date-fns'
 import { es, enUS, de, fr } from 'date-fns/locale'
@@ -133,18 +134,36 @@ export default function BookingWidget({ experience: exp, blockedDates, lang = 'e
 
   return (
     <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden">
-      {/* Price header */}
-      <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
-        <p className="text-3xl font-black text-gray-900">
-          {exp.price}€<span className="text-base font-normal text-gray-400">/persona</span>
-        </p>
-        {step === 'checkout' && (
-          <button onClick={() => { setStep('calendar'); setError('') }}
-            className="text-sm text-sky-500 font-semibold hover:underline">
-            {t.changeDate}
-          </button>
-        )}
-      </div>
+      {/* Cover image header */}
+      {exp.cover_url ? (
+        <div className="relative h-36 overflow-hidden">
+          <Image src={exp.cover_url} alt={exp.name} fill className="object-cover" sizes="420px" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-black/10" />
+          <div className="absolute bottom-0 left-0 right-0 px-5 py-4 flex items-end justify-between">
+            <p className="text-2xl font-black text-white drop-shadow">
+              {exp.price}€<span className="text-sm font-normal text-white/70">/persona</span>
+            </p>
+            {step === 'checkout' && (
+              <button onClick={() => { setStep('calendar'); setError('') }}
+                className="text-sm text-white/80 font-semibold hover:text-white bg-black/30 backdrop-blur-sm px-3 py-1.5 rounded-full transition-colors">
+                {t.changeDate}
+              </button>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+          <p className="text-3xl font-black text-gray-900">
+            {exp.price}€<span className="text-base font-normal text-gray-400">/persona</span>
+          </p>
+          {step === 'checkout' && (
+            <button onClick={() => { setStep('calendar'); setError('') }}
+              className="text-sm text-sky-500 font-semibold hover:underline">
+              {t.changeDate}
+            </button>
+          )}
+        </div>
+      )}
 
       {step === 'calendar' && (
         <div className="p-5 space-y-5">
