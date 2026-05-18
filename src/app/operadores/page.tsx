@@ -149,11 +149,13 @@ export default function OperadoresPage() {
             <div className="p-6 grid sm:grid-cols-2 gap-6">
               {/* Left: info */}
               <div className="space-y-4">
-                <div className="h-36 bg-gradient-to-br from-sky-400 to-blue-600 rounded-2xl flex items-end p-4">
-                  <div>
+                <div className="h-36 rounded-2xl flex items-end p-4 relative overflow-hidden"
+                  style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=800&q=80)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                  <div className="relative z-10">
                     <div className="flex gap-2 mb-2">
                       <span className="bg-sky-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">⏱ 2h</span>
-                      <span className="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded-full">👥 Máx 8</span>
+                      <span className="bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-2 py-0.5 rounded-full">👥 Máx 8</span>
                     </div>
                     <p className="text-white font-black text-lg">Clase de Surf</p>
                   </div>
