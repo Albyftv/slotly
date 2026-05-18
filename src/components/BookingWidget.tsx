@@ -13,7 +13,7 @@ const DATE_FNS_LOCALE = { es, en: enUS, de, fr }
 const CATEGORY_COVER: Record<string, string> = {
   water: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=600&q=80',
   land:  'https://images.unsplash.com/photo-1533130061792-64b345e4a833?w=600&q=80',
-  air:   'https://images.unsplash.com/photo-1601024445121-e5b82f020549?w=600&q=80',
+  air:   'https://images.unsplash.com/photo-1551524559-8af4e6624178?w=600&q=80',
   culture: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&q=80',
 }
 
