@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 export const metadata = {
   title: 'Slotly para operadores turísticos · Reservas online en Canarias',
@@ -149,8 +150,14 @@ export default function OperadoresPage() {
             <div className="p-6 grid sm:grid-cols-2 gap-6">
               {/* Left: info */}
               <div className="space-y-4">
-                <div className="h-36 rounded-2xl flex items-end p-4 relative overflow-hidden"
-                  style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=800&q=80)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                <div className="h-36 rounded-2xl flex items-end p-4 relative overflow-hidden">
+                  <Image
+                    src="https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=800&q=80"
+                    alt="Clase de surf"
+                    fill
+                    className="object-cover"
+                    sizes="400px"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                   <div className="relative z-10">
                     <div className="flex gap-2 mb-2">
