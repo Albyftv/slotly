@@ -28,15 +28,15 @@ export async function POST(req: NextRequest) {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
-    const { booking_id } = session.metadata ?? {}
+    const { booking_id, operator_id } = session.metadata ?? {}
 
+    // Booking payment completed
     if (booking_id) {
       await supabase.from('bookings').update({
         status: 'confirmed',
         stripe_payment_intent_id: session.payment_intent as string,
       }).eq('id', booking_id)
 
-      // Fetch booking + experience + operator for emails
       const { data: booking } = await supabase
         .from('bookings')
         .select('*, experience:experiences(name, meeting_point, operator:operators(name, email, phone))')
@@ -60,9 +60,17 @@ export async function POST(req: NextRequest) {
             operatorAmount: Number(booking.operator_amount),
             confirmationCode: booking.confirmation_code,
             meetingPoint: exp.meeting_point,
-          }).catch(console.error) // don't fail webhook if email fails
+          }).catch(console.error)
         }
       }
+    }
+
+    // Subscription payment completed
+    if (session.mode === 'subscription' && operator_id && session.subscription) {
+      await supabase.from('operators').update({
+        subscription_status: 'active',
+        subscription_id: session.subscription as string,
+      }).eq('id', operator_id)
     }
   }
 
@@ -72,6 +80,27 @@ export async function POST(req: NextRequest) {
     if (booking_id) {
       await supabase.from('bookings').update({ status: 'cancelled' }).eq('id', booking_id)
     }
+  }
+
+  if (event.type === 'customer.subscription.updated') {
+    const sub = event.data.object as Stripe.Subscription
+    const stripeStatus = sub.status
+    const dbStatus =
+      stripeStatus === 'active' || stripeStatus === 'trialing' ? 'active'
+      : stripeStatus === 'canceled' ? 'cancelled'
+      : null
+    if (dbStatus) {
+      await supabase.from('operators')
+        .update({ subscription_status: dbStatus })
+        .eq('subscription_id', sub.id)
+    }
+  }
+
+  if (event.type === 'customer.subscription.deleted') {
+    const sub = event.data.object as Stripe.Subscription
+    await supabase.from('operators')
+      .update({ subscription_status: 'cancelled' })
+      .eq('subscription_id', sub.id)
   }
 
   if (event.type === 'account.updated') {

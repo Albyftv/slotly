@@ -11,15 +11,19 @@ interface Operator {
   phone: string | null
   stripe_account_id: string | null
   stripe_account_enabled: boolean
+  stripe_customer_id: string | null
   subscription_status: string
+  subscription_id: string | null
+  created_at: string
 }
 
 interface Props {
   operator: Operator
   stripeSuccess: boolean
+  billingSuccess: boolean
 }
 
-export default function PerfilClient({ operator, stripeSuccess }: Props) {
+export default function PerfilClient({ operator, stripeSuccess, billingSuccess }: Props) {
   const [form, setForm] = useState({
     name: operator.name,
     city: operator.city ?? '',
@@ -30,6 +34,8 @@ export default function PerfilClient({ operator, stripeSuccess }: Props) {
   const [saveError, setSaveError] = useState('')
   const [connectingStripe, setConnectingStripe] = useState(false)
   const [dashboardLoading, setDashboardLoading] = useState(false)
+  const [billingLoading, setBillingLoading] = useState(false)
+  const [portalLoading, setPortalLoading] = useState(false)
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -79,8 +85,39 @@ export default function PerfilClient({ operator, stripeSuccess }: Props) {
     }
   }
 
+  async function handleActivateBilling() {
+    setBillingLoading(true)
+    try {
+      const res = await fetch('/api/stripe/billing/checkout', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Error')
+      window.location.href = data.url
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Error al activar suscripción')
+      setBillingLoading(false)
+    }
+  }
+
+  async function handleManageBilling() {
+    setPortalLoading(true)
+    try {
+      const res = await fetch('/api/stripe/billing/portal', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Error')
+      window.location.href = data.url
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Error al abrir portal')
+      setPortalLoading(false)
+    }
+  }
+
   const stripeEnabled = operator.stripe_account_enabled
   const stripePartial = !!operator.stripe_account_id && !stripeEnabled
+
+  // Trial days remaining
+  const trialEnd = new Date(operator.created_at)
+  trialEnd.setDate(trialEnd.getDate() + 14)
+  const trialDaysLeft = Math.max(0, Math.ceil((trialEnd.getTime() - Date.now()) / 86400000))
 
   return (
     <div className="max-w-2xl space-y-8">
@@ -220,20 +257,86 @@ export default function PerfilClient({ operator, stripeSuccess }: Props) {
         </div>
       </div>
 
-      {/* Plan */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-        <div className="flex items-center justify-between">
+      {/* Billing success banner */}
+      {billingSuccess && (
+        <div className="bg-green-50 border border-green-200 rounded-2xl px-5 py-4 flex items-center gap-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-green-500 flex-shrink-0">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          <p className="text-sm font-semibold text-green-700">¡Suscripción activada correctamente! Bienvenido a Slotly.</p>
+        </div>
+      )}
+
+      {/* Subscription */}
+      <div className={`rounded-2xl border p-6 shadow-sm ${
+        operator.subscription_status === 'cancelled'
+          ? 'bg-red-50 border-red-200'
+          : operator.subscription_status === 'active'
+          ? 'bg-white border-gray-100'
+          : 'bg-amber-50 border-amber-200'
+      }`}>
+        <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-base font-bold text-gray-900">Plan actual</h2>
-            <p className="text-sm text-gray-500 mt-1 capitalize">
-              {operator.subscription_status === 'trialing'
-                ? 'Prueba gratuita (14 días)'
-                : operator.subscription_status}
+            <h2 className="text-base font-bold text-gray-900">Suscripción</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              {operator.subscription_status === 'active'
+                ? 'Plan Basic · 19€/mes · Pago automático mensual'
+                : operator.subscription_status === 'trialing'
+                ? `Prueba gratuita · ${trialDaysLeft} día${trialDaysLeft !== 1 ? 's' : ''} restante${trialDaysLeft !== 1 ? 's' : ''}`
+                : 'Suscripción cancelada · El acceso está restringido'}
             </p>
           </div>
-          <span className="text-xs font-bold text-sky-600 bg-sky-50 px-3 py-1.5 rounded-lg uppercase tracking-wide">
-            {operator.subscription_status === 'trialing' ? 'Trial' : 'Activo'}
+          <span className={`flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-lg uppercase tracking-wide ${
+            operator.subscription_status === 'active' ? 'text-green-700 bg-green-100'
+            : operator.subscription_status === 'trialing' ? 'text-amber-700 bg-amber-100'
+            : 'text-red-700 bg-red-100'
+          }`}>
+            {operator.subscription_status === 'active' ? 'Activo'
+              : operator.subscription_status === 'trialing' ? 'Trial'
+              : 'Cancelado'}
           </span>
+        </div>
+
+        <div className="mt-5">
+          {operator.subscription_status === 'active' ? (
+            <div className="flex items-center gap-3">
+              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-green-700 bg-green-100 px-3 py-1.5 rounded-lg">
+                <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+                Activo
+              </span>
+              <button onClick={handleManageBilling} disabled={portalLoading}
+                className="text-sm font-semibold text-sky-500 hover:text-sky-600 transition-colors disabled:opacity-50">
+                {portalLoading ? 'Abriendo...' : 'Gestionar suscripción →'}
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {operator.subscription_status === 'trialing' && trialDaysLeft <= 3 && (
+                <p className="text-xs text-amber-700 font-semibold">
+                  ⚠️ Tu periodo de prueba termina pronto. Activa tu suscripción para no perder el acceso.
+                </p>
+              )}
+              <button onClick={handleActivateBilling} disabled={billingLoading}
+                className="inline-flex items-center gap-2 bg-sky-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-sky-400 transition-colors disabled:opacity-50">
+                {billingLoading ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="32" strokeDashoffset="12"/>
+                    </svg>
+                    Redirigiendo...
+                  </>
+                ) : (
+                  <>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                      <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+                    </svg>
+                    {operator.subscription_status === 'cancelled' ? 'Reactivar suscripción' : 'Activar por 19€/mes'}
+                  </>
+                )}
+              </button>
+              <p className="text-xs text-gray-400">Sin permanencia · Cancela cuando quieras</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
