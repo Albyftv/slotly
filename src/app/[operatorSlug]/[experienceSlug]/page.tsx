@@ -9,7 +9,7 @@ import { parseLang, getT, SUPPORTED_LANGS, LANG_FLAGS, LANG_LABELS, type Lang } 
 
 interface Props {
   params: Promise<{ operatorSlug: string; experienceSlug: string }>
-  searchParams: Promise<{ lang?: string }>
+  searchParams: Promise<{ lang?: string; embed?: string }>
 }
 
 export async function generateMetadata({ params }: Props) {
@@ -30,7 +30,8 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function ExperienciaPublicaPage({ params, searchParams }: Props) {
   const { operatorSlug, experienceSlug } = await params
-  const { lang: rawLang } = await searchParams
+  const { lang: rawLang, embed: embedParam } = await searchParams
+  const isEmbed = embedParam === '1'
   const supabase = createServiceClient()
 
   const { data: operator } = await supabase
@@ -80,6 +81,23 @@ export default async function ExperienciaPublicaPage({ params, searchParams }: P
   )
 
   const baseUrl = `/${operatorSlug}/${experienceSlug}`
+
+  // ── MODO EMBED ─────────────────────────────────────────────
+  if (isEmbed) {
+    return (
+      <div style={{ fontFamily: "'Inter', system-ui, sans-serif", padding: '12px' }}>
+        <BookingWidget
+          experience={exp}
+          blockedDates={(blockedDates ?? []).map(b => b.blocked_date)}
+          lang={lang}
+          embed
+        />
+        <p style={{ textAlign: 'center', fontSize: '11px', color: '#d1d5db', marginTop: '8px' }}>
+          Reservas por <a href="https://slotly.es" style={{ color: '#d1d5db' }}>slotly.es</a>
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>

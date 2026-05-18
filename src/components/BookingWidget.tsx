@@ -13,11 +13,12 @@ interface Props {
   experience: Experience & { availability: Availability[] }
   blockedDates: string[]
   lang?: Lang
+  embed?: boolean
 }
 
-type Step = 'calendar' | 'checkout' | 'success'
+type Step = 'calendar' | 'checkout' | 'success' | 'embed-pending'
 
-export default function BookingWidget({ experience: exp, blockedDates, lang = 'es' }: Props) {
+export default function BookingWidget({ experience: exp, blockedDates, lang = 'es', embed = false }: Props) {
   const t = getT(lang)
   const locale = DATE_FNS_LOCALE[lang] ?? es
 
@@ -88,7 +89,12 @@ export default function BookingWidget({ experience: exp, blockedDates, lang = 'e
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Error')
       if (data.url) {
-        window.location.href = data.url
+        if (embed) {
+          window.open(data.url, '_blank', 'noopener,noreferrer')
+          setStep('embed-pending')
+        } else {
+          window.location.href = data.url
+        }
       } else {
         setStep('success')
       }
@@ -99,16 +105,28 @@ export default function BookingWidget({ experience: exp, blockedDates, lang = 'e
     }
   }
 
-  if (step === 'success') {
+  if (step === 'success' || step === 'embed-pending') {
     return (
       <div className="bg-white rounded-3xl border border-gray-100 shadow-xl p-8 text-center">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" className="w-8 h-8">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
+        <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${step === 'success' ? 'bg-green-100' : 'bg-sky-100'}`}>
+          {step === 'success' ? (
+            <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" className="w-8 h-8">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" strokeWidth="2" className="w-8 h-8">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+          )}
         </div>
-        <h3 className="text-xl font-black text-gray-900 mb-2">{t.confirmed}</h3>
-        <p className="text-gray-500 text-sm">{t.confirmationSent}</p>
+        <h3 className="text-xl font-black text-gray-900 mb-2">
+          {step === 'success' ? t.confirmed : '¡Ya casi!'}
+        </h3>
+        <p className="text-gray-500 text-sm">
+          {step === 'success'
+            ? t.confirmationSent
+            : 'Completa el pago en la ventana que se acaba de abrir. Recibirás un email de confirmación.'}
+        </p>
       </div>
     )
   }

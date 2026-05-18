@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { CATEGORY_LABELS, CATEGORY_ICONS } from '@/lib/types'
+import EmbedCodeButton from '@/components/EmbedCodeButton'
 
 export default async function ExperienciasPage() {
   const supabase = await createClient()
@@ -11,7 +12,7 @@ export default async function ExperienciasPage() {
 
   const { data: operator } = await supabase
     .from('operators')
-    .select('id')
+    .select('id, slug')
     .eq('user_id', user.id)
     .single()
   if (!operator) redirect('/login')
@@ -55,46 +56,56 @@ export default async function ExperienciasPage() {
       ) : (
         <div className="grid sm:grid-cols-2 gap-5">
           {list.map((exp) => (
-            <Link key={exp.id} href={`/dashboard/experiencias/${exp.id}`}
-              className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg hover:border-sky-200 transition-all group">
-              <div className="relative h-44">
-                {exp.cover_url ? (
-                  <Image src={exp.cover_url} alt={exp.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="400px" />
-                ) : (
-                  <div className="h-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center">
-                    <span className="text-5xl">{CATEGORY_ICONS[exp.category as keyof typeof CATEGORY_ICONS] ?? '⭐'}</span>
+            <div key={exp.id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg hover:border-sky-200 transition-all group">
+              <Link href={`/dashboard/experiencias/${exp.id}`} className="block">
+                <div className="relative h-44">
+                  {exp.cover_url ? (
+                    <Image src={exp.cover_url} alt={exp.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="400px" />
+                  ) : (
+                    <div className="h-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center">
+                      <span className="text-5xl">{CATEGORY_ICONS[exp.category as keyof typeof CATEGORY_ICONS] ?? '⭐'}</span>
+                    </div>
+                  )}
+                  <div className="absolute top-3 right-3">
+                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
+                      exp.status === 'active' ? 'bg-green-500 text-white' :
+                      exp.status === 'paused' ? 'bg-yellow-500 text-white' :
+                      'bg-gray-400 text-white'
+                    }`}>
+                      {exp.status === 'active' ? 'Activa' : exp.status === 'paused' ? 'Pausada' : 'Borrador'}
+                    </span>
                   </div>
-                )}
-                <div className="absolute top-3 right-3">
-                  <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
-                    exp.status === 'active' ? 'bg-green-500 text-white' :
-                    exp.status === 'paused' ? 'bg-yellow-500 text-white' :
-                    'bg-gray-400 text-white'
-                  }`}>
-                    {exp.status === 'active' ? 'Activa' : exp.status === 'paused' ? 'Pausada' : 'Borrador'}
-                  </span>
                 </div>
-              </div>
-              <div className="p-4">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="font-black text-gray-900">{exp.name}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {CATEGORY_LABELS[exp.category as keyof typeof CATEGORY_LABELS]} · {exp.duration_min} min · max {exp.max_capacity} personas
+                <div className="p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="font-black text-gray-900">{exp.name}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {CATEGORY_LABELS[exp.category as keyof typeof CATEGORY_LABELS]} · {exp.duration_min} min · max {exp.max_capacity} personas
+                      </p>
+                    </div>
+                    <p className="text-lg font-black text-sky-600 flex-shrink-0">{exp.price}€</p>
+                  </div>
+                  <div className="flex items-center gap-2 mt-3">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5 text-gray-400">
+                      <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+                    </svg>
+                    <p className="text-xs text-gray-400">
+                      {(exp.availability ?? []).filter((a: { active: boolean }) => a.active).length} horarios configurados
                     </p>
                   </div>
-                  <p className="text-lg font-black text-sky-600 flex-shrink-0">{exp.price}€</p>
                 </div>
-                <div className="flex items-center gap-2 mt-3">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5 text-gray-400">
-                    <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
-                  </svg>
-                  <p className="text-xs text-gray-400">
-                    {(exp.availability ?? []).filter((a: { active: boolean }) => a.active).length} horarios configurados
-                  </p>
+              </Link>
+              {exp.status === 'active' && operator?.slug && (
+                <div className="px-4 pb-3 border-t border-gray-50 pt-3">
+                  <EmbedCodeButton
+                    operatorSlug={operator.slug}
+                    expSlug={exp.slug}
+                    appUrl={process.env.NEXT_PUBLIC_APP_URL ?? 'https://slotly.es'}
+                  />
                 </div>
-              </div>
-            </Link>
+              )}
+            </div>
           ))}
         </div>
       )}
