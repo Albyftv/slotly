@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Image from 'next/image'
 
 const FEATURES = [
   {
@@ -144,7 +143,7 @@ export default function HomePage() {
             slot<span className="text-sky-500">ly</span>
           </span>
           <div className="flex items-center gap-6">
-            <Link href="#precios" className="text-sm text-gray-500 hover:text-gray-900 transition-colors hidden sm:block">
+            <Link href="/precios" className="text-sm text-gray-500 hover:text-gray-900 transition-colors hidden sm:block">
               Precios
             </Link>
             <Link href="/login" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
@@ -252,12 +251,10 @@ export default function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {EXPERIENCE_TYPES.map(exp => (
               <div key={exp.title} className="group relative rounded-3xl overflow-hidden aspect-[4/3] cursor-pointer">
-                <Image
+                <img
                   src={exp.img}
                   alt={exp.title}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className={`absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent`} />
                 <div className="absolute bottom-0 left-0 right-0 p-5">
@@ -458,3 +455,4 @@ export default function HomePage() {
     </div>
   )
 }
+                                                                                                            
