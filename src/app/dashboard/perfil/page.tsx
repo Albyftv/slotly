@@ -13,7 +13,7 @@ export default async function PerfilPage({
 
   const { data: operator } = await supabase
     .from('operators')
-    .select('id, name, slug, email, city, phone, stripe_account_id, stripe_account_enabled, stripe_customer_id, subscription_status, subscription_id, created_at')
+    .select('id, name, slug, email, city, phone, whatsapp, callmebot_api_key, stripe_account_id, stripe_account_enabled, stripe_customer_id, subscription_status, subscription_id, created_at')
     .eq('user_id', user.id)
     .single()
 

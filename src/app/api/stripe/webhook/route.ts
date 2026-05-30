@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getStripe } from '@/lib/stripe'
 import { createServiceClient } from '@/lib/supabase/server'
 import { sendBookingConfirmationEmails } from '@/lib/email'
+import { sendWhatsAppNotification, buildBookingMessage } from '@/lib/whatsapp'
 import Stripe from 'stripe'
 
 function clean(v: string | undefined) {
@@ -39,13 +40,19 @@ export async function POST(req: NextRequest) {
 
       const { data: booking } = await supabase
         .from('bookings')
-        .select('*, experience:experiences(name, meeting_point, operator:operators(name, email, phone))')
+        .select('*, experience:experiences(name, meeting_point, operator:operators(name, email, phone, whatsapp, callmebot_api_key))')
         .eq('id', booking_id)
         .single()
 
       if (booking) {
-        const exp = booking.experience as { name: string; meeting_point?: string; operator: { name: string; email: string; phone?: string } } | null
+        const exp = booking.experience as {
+          name: string
+          meeting_point?: string
+          operator: { name: string; email: string; phone?: string; whatsapp?: string; callmebot_api_key?: string }
+        } | null
+
         if (exp?.operator) {
+          // Email confirmations
           await sendBookingConfirmationEmails({
             customerName: booking.customer_name,
             customerEmail: booking.customer_email,
@@ -61,6 +68,22 @@ export async function POST(req: NextRequest) {
             confirmationCode: booking.confirmation_code,
             meetingPoint: exp.meeting_point,
           }).catch(console.error)
+
+          // WhatsApp notification via CallMeBot (if configured)
+          const waPhone = exp.operator.whatsapp ?? exp.operator.phone
+          const waKey = exp.operator.callmebot_api_key
+          if (waPhone && waKey) {
+            const message = buildBookingMessage({
+              experienceName: exp.name,
+              customerName: booking.customer_name,
+              bookingDate: booking.booking_date,
+              startTime: booking.start_time,
+              participants: booking.participants,
+              totalAmount: Number(booking.total_amount),
+              confirmationCode: booking.confirmation_code,
+            })
+            sendWhatsAppNotification({ phone: waPhone, apiKey: waKey, message }).catch(console.error)
+          }
         }
       }
     }

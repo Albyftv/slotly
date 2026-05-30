@@ -10,6 +10,8 @@ interface Operator {
   email: string
   city: string | null
   phone: string | null
+  whatsapp: string | null
+  callmebot_api_key: string | null
   stripe_account_id: string | null
   stripe_account_enabled: boolean
   stripe_customer_id: string | null
@@ -29,6 +31,8 @@ export default function PerfilClient({ operator, stripeSuccess, billingSuccess }
     name: operator.name,
     city: operator.city ?? '',
     phone: operator.phone ?? '',
+    whatsapp: operator.whatsapp ?? '',
+    callmebot_api_key: operator.callmebot_api_key ?? '',
   })
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
@@ -256,6 +260,73 @@ export default function PerfilClient({ operator, stripeSuccess, billingSuccess }
             </button>
           )}
         </div>
+      </div>
+
+      {/* WhatsApp Notifications */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+        <div className="flex items-start gap-3 mb-5">
+          <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${form.callmebot_api_key ? 'bg-green-100' : 'bg-gray-100'}`}>
+            <svg viewBox="0 0 24 24" fill={form.callmebot_api_key ? '#16a34a' : '#9ca3af'} className="w-5 h-5">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.523 5.848L.057 23.625a.563.563 0 0 0 .693.693l5.772-1.466A11.943 11.943 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.796 9.796 0 0 1-5.001-1.367l-.358-.213-3.427.871.887-3.34-.234-.374A9.77 9.77 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-gray-900">Notificaciones WhatsApp</h2>
+            <p className="text-sm text-gray-500 mt-0.5">
+              Recibe un WhatsApp instantáneo cada vez que llega una reserva nueva.
+            </p>
+          </div>
+        </div>
+
+        {!form.callmebot_api_key && (
+          <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 mb-4 text-xs text-amber-800 leading-relaxed">
+            <p className="font-bold mb-1">Activación rápida (gratis, 1 minuto):</p>
+            <ol className="list-decimal list-inside space-y-1">
+              <li>Abre WhatsApp y escribe a <span className="font-mono font-bold">+34 644 55 17 36</span></li>
+              <li>Envía el mensaje: <span className="font-mono font-bold">I allow callmebot to send me messages</span></li>
+              <li>Recibirás tu API key por WhatsApp en segundos</li>
+              <li>Pégala abajo y guarda</li>
+            </ol>
+          </div>
+        )}
+
+        <div className="space-y-3">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              Número de WhatsApp <span className="text-gray-400 font-normal">(con prefijo país, ej: +34600000000)</span>
+            </label>
+            <input
+              type="tel"
+              value={form.whatsapp}
+              onChange={e => setForm(f => ({ ...f, whatsapp: e.target.value }))}
+              placeholder="+34600000000"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              API Key de CallMeBot
+            </label>
+            <input
+              type="text"
+              value={form.callmebot_api_key}
+              onChange={e => setForm(f => ({ ...f, callmebot_api_key: e.target.value }))}
+              placeholder="Ej: 123456"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent font-mono"
+            />
+          </div>
+          {form.callmebot_api_key && (
+            <div className="flex items-center gap-2 text-xs text-green-700 font-semibold">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-3.5 h-3.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Notificaciones activas — guarda los cambios para aplicar
+            </div>
+          )}
+        </div>
+        <p className="text-xs text-gray-400 mt-3">
+          Powered by <a href="https://www.callmebot.com" target="_blank" rel="noopener" className="hover:underline">CallMeBot</a> · Servicio gratuito
+        </p>
       </div>
 
       {/* Billing success banner */}
