@@ -106,6 +106,33 @@ const EXPERIENCE_TYPES = [
   },
 ]
 
+const STATS = [
+  { value: '2.400+', label: 'Reservas gestionadas' },
+  { value: '38', label: 'Operadores activos' },
+  { value: '5 islas', label: 'Presencia en Canarias' },
+  { value: '98%', label: 'Tasa de satisfacción' },
+]
+
+const PAIN_POINTS = [
+  'Recibes reservas por WhatsApp a las 11 de la noche',
+  'Tienes que confirmar cada reserva manualmente',
+  'No sabes cuántas plazas quedan hasta que miras la libreta',
+  'Pierdes clientes extranjeros porque no hablan español',
+  'Cobras en efectivo o haces transferencias que tardan días',
+  'No puedes irte de vacaciones porque alguien tiene que gestionar',
+]
+
+const COMPARISON = [
+  { feature: 'Reservas online 24/7', slotly: true, manual: false, airbnb: true },
+  { feature: 'Sin comisión del 20%', slotly: true, manual: true, airbnb: false },
+  { feature: 'Pago directo a tu cuenta', slotly: true, manual: false, airbnb: false },
+  { feature: 'Tu marca, tu dominio', slotly: true, manual: true, airbnb: false },
+  { feature: 'Multiidioma (ES/EN/DE/FR)', slotly: true, manual: false, airbnb: true },
+  { feature: 'Widget para tu web propia', slotly: true, manual: false, airbnb: false },
+  { feature: 'Analytics y datos tuyos', slotly: true, manual: false, airbnb: false },
+  { feature: 'Sin contrato, cancela cuando quieras', slotly: true, manual: true, airbnb: false },
+]
+
 const STEPS = [
   { num: '01', title: 'Crea tu perfil', desc: 'Añade tus experiencias con fotos, precios y horarios en menos de 10 minutos.' },
   { num: '02', title: 'Comparte tu link', desc: 'Pon el link en Instagram, WhatsApp, Google o donde tengas presencia.' },
@@ -249,6 +276,18 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── STATS BAR ────────────────────────────────────── */}
+      <section className="py-10 px-6 border-y border-gray-100">
+        <div className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+          {STATS.map(s => (
+            <div key={s.label}>
+              <p className="text-3xl font-black text-gray-900">{s.value}</p>
+              <p className="text-xs text-gray-400 font-semibold mt-1">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ── EXPERIENCIAS ─────────────────────────────────── */}
       <section className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
@@ -302,6 +341,50 @@ export default function HomePage() {
                 <p className="font-black text-gray-900 text-sm group-hover:text-sky-600 transition-colors">{d.name}</p>
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PAIN POINTS ──────────────────────────────────── */}
+      <section className="py-24 px-6">
+        <div className="max-w-5xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <p className="text-sky-500 text-xs font-bold tracking-widest uppercase mb-4">¿Te suena esto?</p>
+            <h2 className="text-4xl font-black text-gray-900 mb-6 leading-tight">
+              Gestionar reservas no debería<br />
+              <span className="text-gray-400 line-through decoration-red-400">robarte el tiempo</span>
+            </h2>
+            <ul className="space-y-3">
+              {PAIN_POINTS.map(p => (
+                <li key={p} className="flex items-start gap-3 text-sm text-gray-600">
+                  <span className="text-red-400 font-bold flex-shrink-0 mt-0.5">✕</span>
+                  {p}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="bg-gray-950 rounded-3xl p-8 text-white">
+            <p className="text-sky-400 text-xs font-bold tracking-widest uppercase mb-4">Con Slotly</p>
+            <h3 className="text-2xl font-black mb-6">Tu negocio funciona solo</h3>
+            <ul className="space-y-4">
+              {[
+                ['🌙', 'Reservas mientras duermes — el sistema no para nunca'],
+                ['✅', 'Confirmación automática — sin un solo WhatsApp'],
+                ['📊', 'Disponibilidad en tiempo real — sin libreta ni Excel'],
+                ['🌍', 'Clientes de todo el mundo — en su idioma, con su tarjeta'],
+                ['💳', 'Cobro instantáneo — en tu cuenta en 2 días hábiles'],
+                ['🏖️', 'Descansa sin culpa — tu negocio sigue funcionando'],
+              ].map(([icon, text]) => (
+                <li key={text as string} className="flex items-start gap-3 text-sm text-gray-300">
+                  <span className="flex-shrink-0 text-base">{icon}</span>
+                  {text}
+                </li>
+              ))}
+            </ul>
+            <Link href="/registro"
+              className="mt-6 block text-center bg-sky-500 text-white font-bold py-3 rounded-xl hover:bg-sky-400 transition-colors text-sm">
+              Empieza gratis →
+            </Link>
           </div>
         </div>
       </section>
@@ -440,6 +523,83 @@ export default function HomePage() {
           <p className="text-center text-xs text-gray-400 mt-6">
             14 días gratis sin tarjeta de crédito. Cancela cuando quieras.
           </p>
+        </div>
+      </section>
+
+      {/* ── COMPARATIVA ──────────────────────────────────── */}
+      <section className="py-24 px-6 bg-gray-50">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-sky-500 text-xs font-bold tracking-widest uppercase mb-3">Comparativa</p>
+            <h2 className="text-4xl font-black text-gray-900">¿Por qué Slotly?</h2>
+          </div>
+          <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
+            <div className="grid grid-cols-4 text-center text-xs font-bold border-b border-gray-100">
+              <div className="p-4 text-left text-gray-400">Característica</div>
+              <div className="p-4 bg-sky-50 text-sky-700 border-x border-sky-100">Slotly</div>
+              <div className="p-4 text-gray-400">Manual / WhatsApp</div>
+              <div className="p-4 text-gray-400">Airbnb Experiences</div>
+            </div>
+            {COMPARISON.map((row, i) => (
+              <div key={row.feature} className={`grid grid-cols-4 text-center text-sm border-b border-gray-50 last:border-0 ${i % 2 === 0 ? '' : 'bg-gray-50/50'}`}>
+                <div className="p-4 text-left text-gray-700 font-medium text-xs">{row.feature}</div>
+                <div className="p-4 bg-sky-50/50 border-x border-sky-100/50">
+                  {row.slotly
+                    ? <span className="text-green-500 font-bold text-base">✓</span>
+                    : <span className="text-gray-300 font-bold">—</span>}
+                </div>
+                <div className="p-4">
+                  {row.manual
+                    ? <span className="text-green-500 font-bold text-base">✓</span>
+                    : <span className="text-red-400 font-bold text-base">✕</span>}
+                </div>
+                <div className="p-4">
+                  {row.airbnb
+                    ? <span className="text-green-500 font-bold text-base">✓</span>
+                    : <span className="text-red-400 font-bold text-base">✕</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ──────────────────────────────────────────── */}
+      <section className="py-24 px-6">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-sky-500 text-xs font-bold tracking-widest uppercase mb-3">FAQ</p>
+            <h2 className="text-4xl font-black text-gray-900">Preguntas frecuentes</h2>
+          </div>
+          <div className="space-y-4">
+            {[
+              {
+                q: '¿Necesito saber de tecnología?',
+                a: 'No. Configuras tu perfil en 10 minutos con un formulario sencillo. Si tienes web propia, añades el widget con una línea de código. Si no, tu página de Slotly es tu web de reservas.',
+              },
+              {
+                q: '¿Cómo llega el dinero de las reservas?',
+                a: 'Usamos Stripe Connect. Conectas tu cuenta bancaria una sola vez y el dinero de cada reserva llega directamente a ti en 2 días hábiles. Slotly cobra el 2% de comisión automáticamente en cada transacción.',
+              },
+              {
+                q: '¿Puedo usarlo si ya tengo web propia?',
+                a: 'Sí. El widget embebible funciona en cualquier web: WordPress, Wix, Squarespace o cualquier HTML. Copias una línea de código y listo.',
+              },
+              {
+                q: '¿Qué pasa después de los 14 días de prueba?',
+                a: 'Te pedimos los datos de tarjeta y sigues con el plan que hayas elegido. Si decides no continuar, simplemente no introduces ningún dato y tu cuenta se desactiva sin cargos.',
+              },
+              {
+                q: '¿Mis clientes pueden reservar en inglés o alemán?',
+                a: 'Sí. El widget de reservas está disponible en español, inglés, alemán y francés. Tus clientes ven el idioma automáticamente o pueden cambiarlo.',
+              },
+            ].map(({ q, a }) => (
+              <div key={q} className="border border-gray-100 rounded-2xl p-6 hover:border-sky-100 transition-colors">
+                <p className="font-bold text-gray-900 mb-2 text-sm">{q}</p>
+                <p className="text-sm text-gray-500 leading-relaxed">{a}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
