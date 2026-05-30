@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import ExperienciaForm from '@/components/ExperienciaForm'
 import DeleteExperienciaButton from '@/components/DeleteExperienciaButton'
+import BlockedDatesManager from '@/components/BlockedDatesManager'
 import Link from 'next/link'
 
 interface Props { params: Promise<{ id: string }> }
@@ -28,6 +29,12 @@ export default async function EditarExperienciaPage({ params }: Props) {
 
   if (!experience) notFound()
 
+  const { data: blockedDates } = await supabase
+    .from('blocked_dates')
+    .select('id, blocked_date, reason')
+    .eq('experience_id', id)
+    .order('blocked_date')
+
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3001'
   const publicUrl = `${appUrl}/${operator.slug}/${experience.slug}`
 
@@ -51,6 +58,10 @@ export default async function EditarExperienciaPage({ params }: Props) {
         </div>
       </div>
       <ExperienciaForm operatorId={operator.id} experience={experience} />
+      <BlockedDatesManager
+        experienceId={experience.id}
+        initialBlocked={blockedDates ?? []}
+      />
     </div>
   )
 }
