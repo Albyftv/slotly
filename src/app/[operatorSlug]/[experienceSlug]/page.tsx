@@ -13,18 +13,41 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props) {
-  const { experienceSlug } = await params
+  const { operatorSlug, experienceSlug } = await params
   const supabase = createServiceClient()
   const { data: exp } = await supabase
     .from('experiences')
-    .select('name, description')
+    .select('name, description, price, cover_url, location, operator:operators(name, city)')
     .eq('slug', experienceSlug)
     .eq('status', 'active')
     .single()
   if (!exp) return { title: 'Experiencia no encontrada' }
+
+  const op = exp.operator as unknown as { name: string; city?: string } | null
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://slotly-zeta.vercel.app'
+  const pageUrl = `${appUrl}/${operatorSlug}/${experienceSlug}`
+  const title = `${exp.name}${op?.city ? ` en ${op.city}` : ''} — Reserva online`
+  const description = exp.description
+    ?? `Reserva ${exp.name} con ${op?.name ?? 'el operador'}. Desde ${exp.price}€/persona. Confirmación inmediata.`
+
   return {
-    title: `${exp.name} — Reserva online`,
-    description: exp.description ?? undefined,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: pageUrl,
+      type: 'website',
+      images: exp.cover_url
+        ? [{ url: exp.cover_url, width: 1200, height: 630, alt: exp.name }]
+        : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: exp.cover_url ? [exp.cover_url] : [],
+    },
   }
 }
 
@@ -81,6 +104,30 @@ export default async function ExperienciaPublicaPage({ params, searchParams }: P
   )
 
   const baseUrl = `/${operatorSlug}/${experienceSlug}`
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://slotly-zeta.vercel.app'
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'TouristTrip',
+    name: exp.name,
+    description: exp.description ?? undefined,
+    url: `${appUrl}${baseUrl}`,
+    image: exp.cover_url ?? undefined,
+    offers: {
+      '@type': 'Offer',
+      price: exp.price,
+      priceCurrency: exp.price_currency ?? 'EUR',
+      availability: 'https://schema.org/InStock',
+      url: `${appUrl}${baseUrl}`,
+    },
+    provider: {
+      '@type': 'LocalBusiness',
+      name: op.name,
+      address: op.city ? { '@type': 'PostalAddress', addressLocality: op.city, addressCountry: 'ES' } : undefined,
+      telephone: op.phone ?? undefined,
+    },
+    touristType: exp.difficulty ?? undefined,
+  }
 
   // ── MODO EMBED ─────────────────────────────────────────────
   if (isEmbed) {
@@ -101,6 +148,10 @@ export default async function ExperienciaPublicaPage({ params, searchParams }: P
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
       {/* ── HERO ──────────────────────────────────────────── */}
       <div className="relative h-[55vh] min-h-72">
