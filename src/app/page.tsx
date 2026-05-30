@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 const FEATURES = [
   {
@@ -194,8 +195,16 @@ export default function HomePage() {
         {/* Mockup booking card */}
         <div className="max-w-sm mx-auto mt-16">
           <div className="bg-white rounded-3xl shadow-2xl shadow-gray-200 overflow-hidden border border-gray-100">
-            <div className="h-40 bg-gradient-to-br from-sky-400 to-blue-600 flex items-end p-5">
-              <div>
+            <div className="h-40 relative flex items-end p-5 overflow-hidden">
+              <Image
+                src="https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=600&q=80"
+                alt="Surf Lesson"
+                fill
+                unoptimized
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <div className="relative">
                 <p className="text-white/70 text-xs font-semibold tracking-widest uppercase">Experiencia</p>
                 <p className="text-white text-xl font-black">Surf Lesson — 50€</p>
               </div>
@@ -251,10 +260,13 @@ export default function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {EXPERIENCE_TYPES.map(exp => (
               <div key={exp.title} className="group relative rounded-3xl overflow-hidden aspect-[4/3] cursor-pointer">
-                <img
+                <Image
                   src={exp.img}
                   alt={exp.title}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  fill
+                  unoptimized
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
                 <div className={`absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent`} />
                 <div className="absolute bottom-0 left-0 right-0 p-5">
@@ -455,4 +467,3 @@ export default function HomePage() {
     </div>
   )
 }
-                                                                                                            
