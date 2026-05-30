@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import RevenueChart from '@/components/RevenueChart'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -25,10 +26,25 @@ export default async function DashboardPage() {
 
   const confirmedBookings = (bookings ?? []).filter(b => b.status === 'confirmed')
   const totalRevenue = confirmedBookings.reduce((sum, b) => sum + Number(b.operator_amount), 0)
-  const thisMonth = new Date().toISOString().slice(0, 7)
+  const now = new Date()
+  const thisMonth = now.toISOString().slice(0, 7)
   const monthRevenue = confirmedBookings
     .filter(b => b.booking_date?.startsWith(thisMonth))
     .reduce((sum, b) => sum + Number(b.operator_amount), 0)
+
+  // Últimos 6 meses para el gráfico
+  const last6Months = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1)
+    const key = d.toISOString().slice(0, 7)
+    const label = d.toLocaleString('es', { month: 'short' })
+    const amount = confirmedBookings
+      .filter(b => b.booking_date?.startsWith(key))
+      .reduce((sum, b) => sum + Number(b.operator_amount), 0)
+    return { label, amount }
+  })
+
+  const hour = now.getHours()
+  const greeting = hour < 13 ? 'Buenos días' : hour < 20 ? 'Buenas tardes' : 'Buenas noches'
 
   const stats = [
     { label: 'Ingresos totales', value: `${totalRevenue.toFixed(0)}€`, sub: 'después de comisión Slotly' },
@@ -43,7 +59,7 @@ export default async function DashboardPage() {
     <div className="pt-14 lg:pt-0 max-w-5xl">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-black text-gray-900">Buenos días, {operator.name.split(' ')[0]} 👋</h1>
+        <h1 className="text-2xl font-black text-gray-900">{greeting}, {operator.name.split(' ')[0]} 👋</h1>
         <p className="text-gray-500 text-sm mt-1">Aquí tienes el resumen de tu negocio</p>
       </div>
 
@@ -56,6 +72,11 @@ export default async function DashboardPage() {
             <p className="text-xs text-gray-400 mt-1">{s.sub}</p>
           </div>
         ))}
+      </div>
+
+      {/* Revenue chart */}
+      <div className="mb-6">
+        <RevenueChart months={last6Months} />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">

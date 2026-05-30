@@ -66,9 +66,20 @@ export default async function ReservasPage({
 
   return (
     <div className="pt-14 lg:pt-0 max-w-5xl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-black text-gray-900">Reservas</h1>
-        <p className="text-gray-500 text-sm mt-1">Gestiona todas las reservas de tus experiencias</p>
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-black text-gray-900">Reservas</h1>
+          <p className="text-gray-500 text-sm mt-1">Gestiona todas las reservas de tus experiencias</p>
+        </div>
+        <a
+          href="/api/bookings/export"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors whitespace-nowrap"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+          </svg>
+          Exportar CSV
+        </a>
       </div>
 
       {/* Filter tabs */}
