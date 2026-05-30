@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 
 interface Operator {
   id: string
@@ -184,9 +185,9 @@ export default function PerfilClient({ operator, stripeSuccess, billingSuccess }
           <div className="flex items-center justify-between pt-1">
             <p className="text-xs text-gray-400">
               Página pública:{' '}
-              <a href={`/${operator.slug}`} target="_blank" className="text-sky-500 hover:underline">
+              <Link href={`/${operator.slug}`} target="_blank" className="text-sky-500 hover:underline">
                 slotly.app/{operator.slug}
-              </a>
+              </Link>
             </p>
             <button type="submit" disabled={saving}
               className="bg-gray-900 text-white font-bold px-6 py-2.5 rounded-xl text-sm hover:bg-gray-700 transition-colors disabled:opacity-50">

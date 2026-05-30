@@ -34,11 +34,10 @@ interface SlotRow { day: number; time: string }
 
 interface Props {
   operatorId: string
-  operatorSlug: string
   experience?: Experience & { availability?: Availability[] }
 }
 
-export default function ExperienciaForm({ operatorId, operatorSlug, experience }: Props) {
+export default function ExperienciaForm({ operatorId, experience }: Props) {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
   const isEdit = !!experience

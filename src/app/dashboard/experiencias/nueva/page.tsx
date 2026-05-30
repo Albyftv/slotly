@@ -20,7 +20,7 @@ export default async function NuevaExperienciaPage() {
         <h1 className="text-2xl font-black text-gray-900">Nueva experiencia</h1>
         <p className="text-gray-500 text-sm mt-1">Rellena los datos para crear tu página de reservas</p>
       </div>
-      <ExperienciaForm operatorId={operator.id} operatorSlug={operator.slug} />
+      <ExperienciaForm operatorId={operator.id} />
     </div>
   )
 }

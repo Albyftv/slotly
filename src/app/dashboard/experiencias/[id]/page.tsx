@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import ExperienciaForm from '@/components/ExperienciaForm'
+import DeleteExperienciaButton from '@/components/DeleteExperienciaButton'
 import Link from 'next/link'
 
 interface Props { params: Promise<{ id: string }> }
@@ -37,16 +38,19 @@ export default async function EditarExperienciaPage({ params }: Props) {
           <h1 className="text-2xl font-black text-gray-900">Editar experiencia</h1>
           <p className="text-gray-500 text-sm mt-1">{experience.name}</p>
         </div>
-        <Link href={publicUrl} target="_blank"
-          className="flex items-center gap-1.5 text-xs text-sky-500 font-bold hover:underline border border-sky-200 px-3 py-2 rounded-xl bg-sky-50">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-            <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
-          </svg>
-          Ver página pública
-        </Link>
+        <div className="flex items-center gap-3">
+          <DeleteExperienciaButton experienceId={experience.id} experienceName={experience.name} />
+          <Link href={publicUrl} target="_blank"
+            className="flex items-center gap-1.5 text-xs text-sky-500 font-bold hover:underline border border-sky-200 px-3 py-2 rounded-xl bg-sky-50">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+            Ver página pública
+          </Link>
+        </div>
       </div>
-      <ExperienciaForm operatorId={operator.id} operatorSlug={operator.slug} experience={experience} />
+      <ExperienciaForm operatorId={operator.id} experience={experience} />
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import CancelBookingButton from '@/components/CancelBookingButton'
 
 const STATUS_LABELS: Record<string, string> = {
   confirmed: 'Confirmada',
@@ -156,6 +157,9 @@ export default async function ReservasPage({
                         <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${STATUS_STYLES[b.status] ?? 'bg-gray-100 text-gray-500'}`}>
                           {STATUS_LABELS[b.status] ?? b.status}
                         </span>
+                        <div className="mt-1">
+                          <CancelBookingButton bookingId={b.id} status={b.status} />
+                        </div>
                       </td>
                     </tr>
                   )

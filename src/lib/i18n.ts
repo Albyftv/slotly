@@ -35,6 +35,26 @@ export interface T {
   summaryPeople: string
   summaryTotal: string
   days: string[]
+  poweredBy: string
+  whatsapp: string
+  bookingNotFound: string
+  confirmationEmail: string
+  experience: string
+  date: string
+  time: string
+  people: string
+  totalPaid: string
+  code: string
+  contactOperator: string
+  paymentCancelled: string
+  paymentCancelledDesc: string
+  tryAgain: string
+  loading: string
+  noExperiences: string
+  experiencesAvailable: string
+  experienceAvailable: string
+  maxLabel: string
+  perPerson: string
 }
 
 const translations: Record<Lang, T> = {
@@ -69,6 +89,26 @@ const translations: Record<Lang, T> = {
     summaryPeople: 'Personas',
     summaryTotal: 'Total',
     days: ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá', 'Do'],
+    poweredBy: 'Reservas gestionadas con',
+    whatsapp: 'WhatsApp',
+    bookingNotFound: 'Reserva no encontrada.',
+    confirmationEmail: 'Te hemos enviado un email de confirmación a',
+    experience: 'Experiencia',
+    date: 'Fecha',
+    time: 'Hora',
+    people: 'Personas',
+    totalPaid: 'Total pagado',
+    code: 'Código',
+    contactOperator: 'Contactar con',
+    paymentCancelled: 'Pago no completado',
+    paymentCancelledDesc: 'El proceso de pago se ha cancelado. No se ha realizado ningún cargo.',
+    tryAgain: 'Volver a intentar',
+    loading: 'Cargando...',
+    noExperiences: 'Próximamente nuevas experiencias.',
+    experiencesAvailable: 'experiencias disponibles',
+    experienceAvailable: 'experiencia disponible',
+    maxLabel: 'máx',
+    perPerson: '/p',
   },
   en: {
     back: 'Back',
@@ -101,6 +141,26 @@ const translations: Record<Lang, T> = {
     summaryPeople: 'People',
     summaryTotal: 'Total',
     days: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
+    poweredBy: 'Bookings powered by',
+    whatsapp: 'WhatsApp',
+    bookingNotFound: 'Booking not found.',
+    confirmationEmail: "We've sent a confirmation email to",
+    experience: 'Experience',
+    date: 'Date',
+    time: 'Time',
+    people: 'People',
+    totalPaid: 'Total paid',
+    code: 'Code',
+    contactOperator: 'Contact',
+    paymentCancelled: 'Payment cancelled',
+    paymentCancelledDesc: 'The payment was cancelled. No charges were made.',
+    tryAgain: 'Try again',
+    loading: 'Loading...',
+    noExperiences: 'New experiences coming soon.',
+    experiencesAvailable: 'experiences available',
+    experienceAvailable: 'experience available',
+    maxLabel: 'max',
+    perPerson: '/pp',
   },
   de: {
     back: 'Zurück',
@@ -133,6 +193,26 @@ const translations: Record<Lang, T> = {
     summaryPeople: 'Personen',
     summaryTotal: 'Gesamt',
     days: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
+    poweredBy: 'Buchungen verwaltet von',
+    whatsapp: 'WhatsApp',
+    bookingNotFound: 'Buchung nicht gefunden.',
+    confirmationEmail: 'Wir haben eine Bestätigungs-E-Mail gesendet an',
+    experience: 'Erlebnis',
+    date: 'Datum',
+    time: 'Uhrzeit',
+    people: 'Personen',
+    totalPaid: 'Gesamt bezahlt',
+    code: 'Code',
+    contactOperator: 'Kontaktieren Sie',
+    paymentCancelled: 'Zahlung abgebrochen',
+    paymentCancelledDesc: 'Die Zahlung wurde abgebrochen. Es wurden keine Gebühren erhoben.',
+    tryAgain: 'Erneut versuchen',
+    loading: 'Wird geladen...',
+    noExperiences: 'Demnächst neue Erlebnisse.',
+    experiencesAvailable: 'Erlebnisse verfügbar',
+    experienceAvailable: 'Erlebnis verfügbar',
+    maxLabel: 'max.',
+    perPerson: '/P',
   },
   fr: {
     back: 'Retour',
@@ -165,6 +245,26 @@ const translations: Record<Lang, T> = {
     summaryPeople: 'Personnes',
     summaryTotal: 'Total',
     days: ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di'],
+    poweredBy: 'Réservations gérées par',
+    whatsapp: 'WhatsApp',
+    bookingNotFound: 'Réservation introuvable.',
+    confirmationEmail: 'Nous avons envoyé un e-mail de confirmation à',
+    experience: 'Expérience',
+    date: 'Date',
+    time: 'Heure',
+    people: 'Personnes',
+    totalPaid: 'Total payé',
+    code: 'Code',
+    contactOperator: 'Contacter',
+    paymentCancelled: 'Paiement annulé',
+    paymentCancelledDesc: 'Le paiement a été annulé. Aucun frais na été facturé.',
+    tryAgain: 'Réessayer',
+    loading: 'Chargement...',
+    noExperiences: 'Nouvelles expériences à venir.',
+    experiencesAvailable: 'expériences disponibles',
+    experienceAvailable: 'expérience disponible',
+    maxLabel: 'max',
+    perPerson: '/p',
   },
 }
 

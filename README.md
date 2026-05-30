@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Slotly
 
-## Getting Started
+Plataforma SaaS de reservas online para operadores turísticos en Canarias. Permite a escuelas de surf, diving centers, excursiones y otras experiencias turísticas aceptar reservas con pago integrado, gestión de calendario y multiidioma.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Framework:** Next.js 16 (App Router, Turbopack)
+- **UI:** React 19, Tailwind CSS v4
+- **Base de datos:** Supabase (PostgreSQL + Auth + RLS)
+- **Pagos:** Stripe Connect (split de pagos), Stripe Billing (suscripciones)
+- **Emails:** Resend
+- **Idiomas:** ES, EN, DE, FR (date-fns + i18n propio)
+
+## Estructura
+
+```
+src/
+├── app/
+│   ├── [operatorSlug]/          # Página pública del operador
+│   │   └── [experienceSlug]/    # Página pública de la experiencia + widget
+│   ├── api/
+│   │   ├── auth/register        # Registro de operadores
+│   │   ├── bookings/create      # Crear reserva + sesión Stripe
+│   │   ├── operators/update     # Actualizar perfil
+│   │   └── stripe/              # Webhooks, Connect, Billing
+│   ├── dashboard/               # Panel del operador (protegido)
+│   │   ├── experiencias/        # CRUD de experiencias
+│   │   ├── reservas/            # Listado y filtros
+│   │   └── perfil/              # Datos del negocio, Stripe Connect
+│   ├── destinos/[isla]/         # Búsqueda por isla (SSG)
+│   ├── reserva/                 # Páginas post-pago
+│   ├── login/                   # Autenticación
+│   └── registro/                # Registro en 2 pasos
+├── components/
+│   ├── BookingWidget.tsx        # Widget de reservas (client-side)
+│   ├── DashboardNav.tsx         # Navegación del dashboard
+│   ├── EmbedCodeButton.tsx      # Modal con código iframe
+│   ├── ExperienciaForm.tsx      # Formulario crear/editar experiencia
+│   └── PerfilClient.tsx         # Configuración del perfil + Stripe
+└── lib/
+    ├── supabase/                # Clientes Supabase (server + browser)
+    ├── i18n.ts                  # Traducciones (ES/EN/DE/FR)
+    ├── stripe.ts                # Config Stripe + planes
+    ├── email.ts                 # Templates de emails
+    ├── islands.ts               # Datos de Canarias
+    └── types.ts                 # Tipos TypeScript
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Variables de entorno
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Stripe
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+STRIPE_PRICE_BASIC=
+STRIPE_PRICE_PRO=
 
-## Learn More
+# Resend
+RESEND_API_KEY=
 
-To learn more about Next.js, take a look at the following resources:
+# App
+NEXT_PUBLIC_APP_URL=http://localhost:3001
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Desarrollo
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm install
+npm run dev      # http://localhost:3001
+npm run build
+npm run lint
+```
 
-## Deploy on Vercel
+## Modelo de negocio
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Plan Basic (19€/mes): hasta 3 experiencias
+- Plan Pro (39€/mes): experiencias ilimitadas
+- 2% de comisión por reserva completada
+- 14 días de prueba gratis
+- Pagos vía Stripe Connect con split automático

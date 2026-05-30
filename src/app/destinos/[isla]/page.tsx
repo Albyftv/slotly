@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { createServiceClient } from '@/lib/supabase/server'
 import { ISLANDS, ISLAND_SLUGS, type IslandSlug } from '@/lib/islands'
-import { CATEGORY_LABELS, CATEGORY_ICONS } from '@/lib/types'
+import { CATEGORY_LABELS, CATEGORY_ICONS, type ExperienceCategory } from '@/lib/types'
 
 interface Props {
   params: Promise<{ isla: string }>
@@ -135,12 +135,12 @@ export default async function IslaPage({ params }: Props) {
                         <Image src={exp.cover_url} alt={exp.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" unoptimized />
                       ) : (
                         <div className="h-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-5xl">
-                          {CATEGORY_ICONS[exp.category]}
+                          {CATEGORY_ICONS[exp.category as ExperienceCategory]}
                         </div>
                       )}
                       <div className="absolute top-3 left-3">
                         <span className="bg-white/90 backdrop-blur-sm text-xs font-bold px-2.5 py-1 rounded-full text-gray-700">
-                          {CATEGORY_LABELS[exp.category]}
+                          {CATEGORY_LABELS[exp.category as ExperienceCategory]}
                         </span>
                       </div>
                     </div>
