@@ -63,7 +63,7 @@ function RegistroForm() {
       })
       if (loginError) throw loginError
 
-      router.push('/dashboard')
+      router.push('/dashboard/onboarding')
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al crear la cuenta')
     } finally {

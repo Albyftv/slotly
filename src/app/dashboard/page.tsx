@@ -16,12 +16,13 @@ export default async function DashboardPage() {
 
   if (!operator) redirect('/login')
 
-  const [{ data: experiences }, { data: bookings }] = await Promise.all([
+  const [{ data: experiences }, { data: bookings }, { data: operatorFull }] = await Promise.all([
     supabase.from('experiences').select('id, name, status, price').eq('operator_id', operator.id),
     supabase.from('bookings').select('id, total_amount, operator_amount, status, booking_date, customer_name, created_at')
       .eq('operator_id', operator.id)
       .order('created_at', { ascending: false })
       .limit(10),
+    supabase.from('operators').select('stripe_account_enabled, slug').eq('id', operator.id).single(),
   ])
 
   const confirmedBookings = (bookings ?? []).filter(b => b.status === 'confirmed')
@@ -55,6 +56,12 @@ export default async function DashboardPage() {
 
   const recentBookings = (bookings ?? []).slice(0, 5)
 
+  const hasStripe = operatorFull?.stripe_account_enabled === true
+  const hasActiveExp = (experiences ?? []).some(e => e.status === 'active')
+  const onboardingDone = hasStripe && hasActiveExp
+  const onboardingSteps = [true, hasStripe, hasActiveExp].filter(Boolean).length
+  const onboardingTotal = 3
+
   return (
     <div className="pt-14 lg:pt-0 max-w-5xl">
       {/* Header */}
@@ -62,6 +69,28 @@ export default async function DashboardPage() {
         <h1 className="text-2xl font-black text-gray-900">{greeting}, {operator.name.split(' ')[0]} 👋</h1>
         <p className="text-gray-500 text-sm mt-1">Aquí tienes el resumen de tu negocio</p>
       </div>
+
+      {/* Onboarding banner */}
+      {!onboardingDone && (
+        <Link href="/dashboard/onboarding" className="block mb-6 bg-sky-50 border border-sky-100 rounded-2xl p-4 hover:bg-sky-100 transition-colors group">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1">
+              <p className="text-sm font-bold text-sky-800">
+                Configura tu negocio — {onboardingSteps} de {onboardingTotal} pasos completados
+              </p>
+              <div className="mt-2 h-1.5 bg-sky-200 rounded-full overflow-hidden w-full max-w-xs">
+                <div
+                  className="h-1.5 bg-sky-500 rounded-full transition-all"
+                  style={{ width: `${(onboardingSteps / onboardingTotal) * 100}%` }}
+                />
+              </div>
+            </div>
+            <span className="text-sky-500 font-bold text-sm group-hover:translate-x-0.5 transition-transform">
+              Continuar →
+            </span>
+          </div>
+        </Link>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
