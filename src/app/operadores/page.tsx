@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import RevenueCalculator from './RevenueCalculator'
+import ContactForm from './ContactForm'
 
 export const metadata = {
   title: 'Slotly para operadores · Reservas y pagos online en Canarias',
@@ -52,10 +53,10 @@ export default function OperadoresPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 mb-16">
-            <Link href="/registro"
+            <a href="#contacto"
               className="bg-sky-500 text-white font-black px-8 py-4 rounded-2xl text-lg hover:bg-sky-400 transition-all shadow-2xl shadow-sky-500/40 hover:shadow-sky-500/60 hover:-translate-y-0.5">
-              Empieza 14 días gratis →
-            </Link>
+              Quiero una demo gratuita →
+            </a>
             <Link href="/demo"
               className="bg-white/10 border border-white/20 text-white font-bold px-8 py-4 rounded-2xl text-lg hover:bg-white/15 transition-all backdrop-blur-sm">
               Ver demo interactiva ↗
@@ -495,6 +496,18 @@ export default function OperadoresPage() {
         </div>
 
         <p className="text-center text-gray-400 text-sm mt-8">Sin tarjeta de crédito · Sin permanencia · Cancela cuando quieras</p>
+      </section>
+
+      {/* ── CONTACT FORM */}
+      <section id="contacto" className="py-24 px-6 bg-gradient-to-b from-sky-50 to-white">
+        <div className="max-w-2xl mx-auto text-center mb-10">
+          <p className="text-sky-500 text-xs font-bold tracking-widest uppercase mb-3">Sin compromiso</p>
+          <h2 className="text-4xl font-black text-gray-900">¿Hablamos?</h2>
+          <p className="text-gray-500 mt-3 text-lg">
+            Cuéntanos tu negocio y te mostramos la plataforma en persona.<br />Configuración incluida, sin coste.
+          </p>
+        </div>
+        <ContactForm />
       </section>
 
       {/* ── FAQ */}
