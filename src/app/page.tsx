@@ -379,8 +379,8 @@ export default function HomePage() {
             <h2 className="text-4xl font-black text-gray-900">Todo lo que necesitas</h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {FEATURES.map(f => (
-              <div key={f.title} className="p-6 rounded-2xl border border-gray-100 hover:border-sky-200 hover:shadow-lg hover:shadow-sky-50 transition-all group">
+            {FEATURES.map((f, i) => (
+              <div key={f.title} className={`p-6 rounded-2xl border border-gray-100 hover:border-sky-200 hover:shadow-lg hover:shadow-sky-50 transition-all group${i === FEATURES.length - 1 && FEATURES.length % 3 === 1 ? ' lg:col-start-2' : ''}`}>
                 <div className="w-10 h-10 bg-sky-50 text-sky-500 rounded-xl flex items-center justify-center mb-4 group-hover:bg-sky-500 group-hover:text-white transition-colors">
                   {f.icon}
                 </div>
