@@ -143,6 +143,9 @@ export default function HomePage() {
             slot<span className="text-sky-500">ly</span>
           </span>
           <div className="flex items-center gap-6">
+            <Link href="/operadores" className="text-sm text-gray-500 hover:text-gray-900 transition-colors hidden sm:block">
+              Para operadores
+            </Link>
             <Link href="/precios" className="text-sm text-gray-500 hover:text-gray-900 transition-colors hidden sm:block">
               Precios
             </Link>
