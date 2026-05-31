@@ -106,13 +106,6 @@ const EXPERIENCE_TYPES = [
   },
 ]
 
-const STATS = [
-  { value: '2.400+', label: 'Reservas gestionadas' },
-  { value: '38', label: 'Operadores activos' },
-  { value: '5 islas', label: 'Presencia en Canarias' },
-  { value: '98%', label: 'Tasa de satisfacción' },
-]
-
 const PAIN_POINTS = [
   'Recibes reservas por WhatsApp a las 11 de la noche',
   'Tienes que confirmar cada reserva manualmente',
@@ -137,27 +130,6 @@ const STEPS = [
   { num: '01', title: 'Crea tu perfil', desc: 'Añade tus experiencias con fotos, precios y horarios en menos de 10 minutos.' },
   { num: '02', title: 'Comparte tu link', desc: 'Pon el link en Instagram, WhatsApp, Google o donde tengas presencia.' },
   { num: '03', title: 'Cobra y gestiona', desc: 'Las reservas llegan solas. Tú solo tienes que aparecer y disfrutar.' },
-]
-
-const TESTIMONIALS = [
-  {
-    name: 'Carlos M.',
-    role: 'Escuela de Surf · Fuerteventura',
-    text: 'Antes gestionaba todo por WhatsApp y perdía reservas. Ahora cobro online y mi agenda se rellena sola. En el primer mes recuperé la inversión.',
-    avatar: 'CM',
-  },
-  {
-    name: 'Ana R.',
-    role: 'Excursiones en quad · Lanzarote',
-    text: 'Mis clientes son alemanes e ingleses que no hablan español. Con Slotly reservan en su idioma y pagan con tarjeta sin problema.',
-    avatar: 'AR',
-  },
-  {
-    name: 'Paco T.',
-    role: 'Diving Center · Gran Canaria',
-    text: 'Lo mejor es que el dinero llega a mi cuenta automáticamente. Sin PayPal, sin transferencias, sin esperar. Profesional de verdad.',
-    avatar: 'PT',
-  },
 ]
 
 export default function HomePage() {
@@ -273,18 +245,6 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ── STATS BAR ────────────────────────────────────── */}
-      <section className="py-10 px-6 border-y border-gray-100">
-        <div className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
-          {STATS.map(s => (
-            <div key={s.label}>
-              <p className="text-3xl font-black text-gray-900">{s.value}</p>
-              <p className="text-xs text-gray-400 font-semibold mt-1">{s.label}</p>
-            </div>
-          ))}
         </div>
       </section>
 
@@ -426,39 +386,6 @@ export default function HomePage() {
                 </div>
                 <h3 className="font-bold text-gray-900 mb-2">{f.title}</h3>
                 <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── TESTIMONIOS ──────────────────────────────────── */}
-      <section className="py-24 px-6 bg-sky-50">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-sky-500 text-xs font-bold tracking-widest uppercase mb-3">Testimonios</p>
-            <h2 className="text-4xl font-black text-gray-900">Lo que dicen nuestros clientes</h2>
-          </div>
-          <div className="grid sm:grid-cols-3 gap-6">
-            {TESTIMONIALS.map(t => (
-              <div key={t.name} className="bg-white rounded-2xl p-6 shadow-sm">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-sky-500 text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
-                    {t.avatar}
-                  </div>
-                  <div>
-                    <p className="font-bold text-gray-900 text-sm">{t.name}</p>
-                    <p className="text-xs text-gray-400">{t.role}</p>
-                  </div>
-                </div>
-                <p className="text-gray-600 text-sm leading-relaxed">&ldquo;{t.text}&rdquo;</p>
-                <div className="flex gap-0.5 mt-4">
-                  {[...Array(5)].map((_, i) => (
-                    <svg key={i} viewBox="0 0 20 20" fill="#f59e0b" className="w-4 h-4">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                    </svg>
-                  ))}
-                </div>
               </div>
             ))}
           </div>
