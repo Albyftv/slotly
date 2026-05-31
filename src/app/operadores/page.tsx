@@ -56,11 +56,10 @@ export default function OperadoresPage() {
               className="bg-sky-500 text-white font-black px-8 py-4 rounded-2xl text-lg hover:bg-sky-400 transition-all shadow-2xl shadow-sky-500/40 hover:shadow-sky-500/60 hover:-translate-y-0.5">
               Empieza 14 días gratis →
             </Link>
-            <a href="https://slotly-zeta.vercel.app/fuerteventura-adventures/clase-surf-corralejo"
-              target="_blank" rel="noopener"
+            <Link href="/demo"
               className="bg-white/10 border border-white/20 text-white font-bold px-8 py-4 rounded-2xl text-lg hover:bg-white/15 transition-all backdrop-blur-sm">
-              Ver demo en vivo ↗
-            </a>
+              Ver demo interactiva ↗
+            </Link>
           </div>
 
           {/* ── DASHBOARD MOCKUP */}
